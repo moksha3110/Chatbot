@@ -9,17 +9,24 @@ Routes are the HTTP layer only: validate input (via models), call a service,
 shape the output. They contain NO Gemini logic — that lives in services.
 """
 
+import logging
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 
 from app.models.chat import ChatRequest, ChatResponse
 from app.services import conversation
 from app.services.gemini_service import GeminiError
+from app.core.security import require_api_key, rate_limit
 from app.rag import documents, embeddings
 from app.rag.vector_store import vector_store
 
 router = APIRouter()
+logger = logging.getLogger("app")
+
+# Dependencies applied to the protected endpoints: check the API key, then the
+# per-client rate limit. FastAPI runs these before the handler.
+PROTECTED = [Depends(require_api_key), Depends(rate_limit)]
 
 
 @router.get("/")
@@ -28,7 +35,7 @@ def home():
     return {"status": "Chatbot backend is running"}
 
 
-@router.post("/chat", response_model=ChatResponse)
+@router.post("/chat", response_model=ChatResponse, dependencies=PROTECTED)
 def chat(request: ChatRequest):
     """
     Receive a user message, ask the conversation engine for a reply, return it.
@@ -47,7 +54,7 @@ def chat(request: ChatRequest):
     return ChatResponse(response=reply, session_id=session_id)
 
 
-@router.post("/documents")
+@router.post("/documents", dependencies=PROTECTED)
 async def upload_document(file: UploadFile = File(...)):
     """
     Upload a PDF to give the bot knowledge (RAG).

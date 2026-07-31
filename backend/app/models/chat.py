@@ -11,7 +11,9 @@ from pydantic import BaseModel, Field
 
 class ChatRequest(BaseModel):
     """The JSON body the client sends to POST /chat."""
-    message: str = Field(..., examples=["Hello, chatbot!"])
+    # Validation: reject empty messages and absurdly long ones (min/max length).
+    # FastAPI turns a violation into an automatic 422 before our code runs.
+    message: str = Field(..., min_length=1, max_length=4000, examples=["Hello, chatbot!"])
     # Which conversation this message belongs to. Optional: if the client
     # doesn't send one (e.g. the very first message), the server creates one
     # and returns it, so the client can reuse it for the rest of the chat.

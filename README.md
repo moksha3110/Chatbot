@@ -148,6 +148,7 @@ Copy `backend/.env.example` to `backend/.env` and fill in values.
 - ✅ **Milestone 10** — RAG: upload a PDF (`POST /documents`) → text extracted, chunked, embedded (Gemini), stored in an in-memory vector store; `/chat` retrieves relevant chunks to ground answers
 - ✅ **Milestone 11** — Persistent storage: conversation history saved in SQLite (survives restarts); only `memory.py` changed thanks to the layered design
 - ✅ **Milestone 12** — More tools: safe `calculate` (AST, no eval) and keyless `search_wikipedia`. Email/Calendar/Maps follow the same pattern but need credentials + side-effect safeguards
+- ✅ **Milestone 13** — Production hardening: optional API-key auth (`X-API-Key`), per-IP rate limiting, input validation, logging, and a global error handler
 
 ## Roadmap
 

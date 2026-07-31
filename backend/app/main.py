@@ -21,7 +21,7 @@ init_db()
 app = FastAPI(
     title="Internship Chatbot API",
     description="Backend for a milestone-by-milestone AI chatbot, powered by Google Gemini.",
-    version="0.11.0",
+    version="0.12.0",
 )
 
 # CORS: allow our React dev origin(s) to call this API from the browser.

@@ -15,6 +15,8 @@ from google.genai import types
 from app.tools.base import Tool
 from app.tools.time_tool import time_tool
 from app.tools.weather_tool import weather_tool
+from app.tools.calculator_tool import calculator_tool
+from app.tools.wikipedia_tool import wikipedia_tool
 
 
 class ToolManager:
@@ -58,4 +60,6 @@ class ToolManager:
 
 # The app-wide tool manager. Register tools here — adding a tool is a one-line
 # change (that's the payoff of the generic Tool interface).
-tool_manager = ToolManager([time_tool, weather_tool])
+tool_manager = ToolManager(
+    [time_tool, weather_tool, calculator_tool, wikipedia_tool]
+)

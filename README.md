@@ -164,6 +164,7 @@ Copy `backend/.env.example` to `backend/.env` and fill in values.
 - ✅ **Milestone 12** — More tools: safe `calculate` (AST, no eval) and keyless `search_wikipedia`. Email/Calendar/Maps follow the same pattern but need credentials + side-effect safeguards
 - ✅ **Milestone 13** — Production hardening: optional API-key auth (`X-API-Key`), per-IP rate limiting, input validation, logging, and a global error handler
 - ✅ **Milestone 14** — Dockerized: backend image, frontend image (built + served by nginx that proxies `/api`), and a `docker-compose.yml` to run the whole stack
+- ✅ **Milestone 15** — AWS deployment plan: full architecture + runbook in [docs/DEPLOY_AWS.md](docs/DEPLOY_AWS.md) (ECR + App Runner, S3 + CloudFront, Secrets Manager, RDS)
 
 ## Roadmap
 

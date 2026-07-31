@@ -38,12 +38,22 @@ AI Response  →  back to the user
 ```
 internship-chatbot/
 ├── backend/
-│   ├── venv/            # Python virtual environment (NOT committed)
-│   ├── main.py          # FastAPI app
-│   ├── requirements.txt # Python dependencies
-│   ├── .env             # Secrets — NOT committed
-│   └── .env.example     # Template showing which env vars are needed
-├── frontend/            # React + Vite app (Milestone 4)
+│   ├── venv/             # Python virtual environment (NOT committed)
+│   ├── main.py           # FastAPI app (routes, CORS, models)
+│   ├── gemini_service.py # Talks to the Gemini API (the "AI layer")
+│   ├── requirements.txt  # Python dependencies
+│   ├── .env              # Secrets — NOT committed
+│   └── .env.example      # Template showing which env vars are needed
+├── frontend/             # React + Vite chat UI
+│   ├── src/
+│   │   ├── App.jsx           # Chat logic + layout
+│   │   ├── App.css           # Chat styling (indigo + gold theme)
+│   │   ├── index.css         # Global theme / palette variables
+│   │   └── components/
+│   │       ├── MessageBubble.jsx
+│   │       └── TypingIndicator.jsx
+│   ├── index.html
+│   └── package.json
 ├── .gitignore
 └── README.md
 ```
@@ -51,8 +61,8 @@ internship-chatbot/
 ## Prerequisites
 
 - Python 3.11+
+- Node.js 18+ (for the frontend)
 - Git
-- (Later) Node.js 18+ for the frontend
 
 ## Backend setup
 
@@ -89,19 +99,41 @@ uvicorn main:app --reload
 - API root:   http://127.0.0.1:8000/
 - Interactive docs (Swagger UI):   http://127.0.0.1:8000/docs
 
+## Running the frontend
+
+The app uses **two servers** at once: the FastAPI backend (port 8000) and the
+Vite dev server (port 5173). Start the backend first, then in a **second terminal**:
+
+```bash
+cd frontend
+npm install        # first time only
+npm run dev
+```
+
+Open **http://localhost:5173** and start chatting.
+
+> The browser (origin `localhost:5173`) calls the API (origin `127.0.0.1:8000`).
+> These are different origins, so the backend enables **CORS** to allow it.
+> By default the frontend calls `http://127.0.0.1:8000`; override with
+> `VITE_API_BASE_URL` in `frontend/.env` if needed.
+
 ## Environment variables
 
 Copy `backend/.env.example` to `backend/.env` and fill in values.
 **Never commit `.env` or real secret values.**
 
-| Variable         | Required from | Description                     |
-|------------------|---------------|---------------------------------|
-| `GEMINI_API_KEY` | Milestone 3   | Google Gemini API key           |
+| Variable            | Location   | Description                                   |
+|---------------------|------------|-----------------------------------------------|
+| `GEMINI_API_KEY`    | backend    | Google Gemini API key (required)              |
+| `GEMINI_MODEL`      | backend    | Model name (optional; default `gemini-flash-latest`) |
+| `VITE_API_BASE_URL` | frontend   | Backend URL (optional; default `http://127.0.0.1:8000`) |
 
 ## Current features
 
 - ✅ **Milestone 1** — Project foundation (structure, venv, gitignore, README, Git/GitHub)
-- ✅ Basic FastAPI backend with a `GET /` health check and a `POST /chat` echo endpoint
+- ✅ **Milestone 2** — Typed FastAPI backend: `GET /` health check, `POST /chat` with Pydantic models
+- ✅ **Milestone 3** — Gemini integration via a dedicated `gemini_service.py` module
+- ✅ **Milestone 4** — React + Vite chat UI (indigo + gold theme) connected over CORS
 
 ## Roadmap
 

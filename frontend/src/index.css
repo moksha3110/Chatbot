@@ -1,0 +1,76 @@
+/* ==========================================================================
+   Global theme — dark indigo + gold
+   CSS variables let us define the palette ONCE and reuse it everywhere.
+   ========================================================================== */
+
+:root {
+  /* Backgrounds (deep navy → indigo) */
+  --navy-900: #070a1c;
+  --navy-800: #0c1130;
+  --navy-700: #131a40;
+  --surface: rgba(24, 31, 71, 0.72);
+  --surface-solid: #181f47;
+
+  /* Indigo accents */
+  --indigo-600: #4f46e5;
+  --indigo-500: #6366f1;
+  --indigo-400: #818cf8;
+
+  /* Gold accents */
+  --gold-500: #d9a441;
+  --gold-400: #ecc069;
+  --gold-300: #ffd98a;
+
+  /* Text */
+  --text: #e8eafc;
+  --text-dim: #98a0c8;
+
+  /* Lines / borders */
+  --border: rgba(129, 140, 248, 0.16);
+  --border-gold: rgba(236, 192, 105, 0.35);
+
+  --radius: 18px;
+  --shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  /* Layered radial glows (indigo + a touch of gold) over a navy gradient.
+     This gives a rich, non-flat background that feels custom-made. */
+  background:
+    radial-gradient(1100px 700px at 15% -10%, rgba(99, 102, 241, 0.28), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgba(217, 164, 65, 0.12), transparent 55%),
+    linear-gradient(160deg, var(--navy-900), var(--navy-800) 55%, var(--navy-700));
+  background-attachment: fixed;
+  min-height: 100%;
+}
+
+/* A slim, gold-tinted scrollbar to match the theme */
+*::-webkit-scrollbar {
+  width: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--indigo-500), var(--indigo-600));
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(var(--gold-400), var(--gold-500));
+  background-clip: content-box;
+}

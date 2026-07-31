@@ -1,15 +1,17 @@
 """
 FastAPI backend for the internship chatbot.
 
-Milestone 3: real AI replies.
+Milestone 4: talk to a browser.
   - GET  /       -> health check (is the server alive?)
   - POST /chat   -> sends the message to Gemini and returns its reply
+  - CORS enabled so the React frontend (a different origin) may call us.
 
 main.py owns the HTTP layer only. The actual Gemini call lives in
 gemini_service.py, so this file stays focused on routing and validation.
 """
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 # Import the AI layer. generate_reply() does the Gemini call;
@@ -22,7 +24,23 @@ from gemini_service import generate_reply, GeminiError
 app = FastAPI(
     title="Internship Chatbot API",
     description="Backend for a milestone-by-milestone AI chatbot, powered by Google Gemini.",
-    version="0.3.0",
+    version="0.4.0",
+)
+
+# --- CORS (Cross-Origin Resource Sharing) ---------------------------------
+# A browser page served from http://localhost:5173 (our React dev server) is a
+# DIFFERENT ORIGIN than this API at http://127.0.0.1:8000. By default browsers
+# BLOCK such cross-origin requests for security. This middleware tells the
+# browser "these origins are allowed to call me", which unblocks the frontend.
+# We list only our local dev origins (never use "*" once real users exist).
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_methods=["*"],   # allow GET, POST, etc.
+    allow_headers=["*"],   # allow Content-Type and any other headers
 )
 
 

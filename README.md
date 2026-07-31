@@ -38,12 +38,18 @@ AI Response  →  back to the user
 ```
 internship-chatbot/
 ├── backend/
-│   ├── venv/             # Python virtual environment (NOT committed)
-│   ├── main.py           # FastAPI app (routes, CORS, models)
-│   ├── gemini_service.py # Talks to the Gemini API (the "AI layer")
-│   ├── requirements.txt  # Python dependencies
-│   ├── .env              # Secrets — NOT committed
-│   └── .env.example      # Template showing which env vars are needed
+│   ├── venv/                 # Python virtual environment (NOT committed)
+│   ├── app/                  # Application package (layered)
+│   │   ├── main.py           # App factory: create app, CORS, include routes
+│   │   ├── core/config.py    # Central configuration (reads .env)
+│   │   ├── models/chat.py    # Pydantic request/response schemas
+│   │   ├── services/
+│   │   │   ├── gemini_service.py  # Talks to the Gemini API
+│   │   │   └── conversation.py    # Conversation engine (orchestrator)
+│   │   └── api/routes.py     # HTTP endpoints (GET /, POST /chat)
+│   ├── requirements.txt      # Python dependencies
+│   ├── .env                  # Secrets — NOT committed
+│   └── .env.example          # Template showing which env vars are needed
 ├── frontend/             # React + Vite chat UI
 │   ├── src/
 │   │   ├── App.jsx           # Chat logic + layout
@@ -93,7 +99,7 @@ copy .env.example .env      # Windows
 
 ```bash
 cd backend
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 - API root:   http://127.0.0.1:8000/
@@ -134,6 +140,7 @@ Copy `backend/.env.example` to `backend/.env` and fill in values.
 - ✅ **Milestone 2** — Typed FastAPI backend: `GET /` health check, `POST /chat` with Pydantic models
 - ✅ **Milestone 3** — Gemini integration via a dedicated `gemini_service.py` module
 - ✅ **Milestone 4** — React + Vite chat UI (indigo + gold theme) connected over CORS
+- ✅ **Milestone 5** — Layered backend: `core` (config), `models`, `services` (gemini + conversation engine), `api` (routes)
 
 ## Roadmap
 

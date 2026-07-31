@@ -48,6 +48,32 @@
   box-shadow: 0 6px 18px -6px rgba(217, 164, 65, 0.6);
 }
 
+/* Pushes the New Chat button to the far right of the header */
+.brand-text {
+  margin-right: auto;
+}
+
+.new-chat-btn {
+  flex-shrink: 0;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--gold-300);
+  background: rgba(236, 192, 105, 0.08);
+  border: 1px solid var(--border-gold);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.new-chat-btn:hover:not(:disabled) {
+  background: rgba(236, 192, 105, 0.18);
+  transform: translateY(-1px);
+}
+.new-chat-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .brand-text h1 {
   font-size: 19px;
   font-weight: 700;

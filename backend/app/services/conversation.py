@@ -1,29 +1,53 @@
 """
 Conversation engine.
 
-This is the ORCHESTRATOR: given a user's message, it produces the assistant's
-reply. Right now that job is tiny — it just forwards the message to Gemini.
+The orchestrator: given a session_id and a user message, it produces the
+assistant's reply — now WITH memory of previous turns in that session.
 
-So why does it exist as its own layer? Because this is the designated home for
-everything that will make our bot smart, and those features are next:
-  - Milestone 6: conversation HISTORY (remember previous turns)
-  - Milestone 7: PROMPT BUILDER (system instructions + history + message)
-  - Milestone 8+: TOOL calling (weather, search, RAG, ...)
-
-Keeping the engine separate from both the HTTP layer (routes) and the raw model
-call (gemini_service) means each of those additions has an obvious place to go,
-without touching the web layer or the SDK wrapper.
+How memory works here (this is the heart of Milestone 6):
+  1. Look up the session's past messages from the memory store.
+  2. Build the full list [ ...history..., new user message ].
+  3. Send that whole list to Gemini, so it can see the conversation.
+  4. Save both the user message and the reply back into the store.
 """
 
 from app.services import gemini_service
+from app.services import memory
+
+# CONTEXT WINDOW: a model can only "see" a limited amount of text (tokens) at
+# once. If a chat ran for hours, replaying ALL of it would eventually overflow
+# that limit (and cost more). So we only send the most recent messages. This is
+# a crude but effective cap; smarter strategies (summarising old turns) come later.
+MAX_HISTORY_MESSAGES = 20
 
 
-def generate_response(message: str) -> str:
+def _to_gemini_contents(messages: list[dict]) -> list[dict]:
+    """Convert our simple {role, text} messages into Gemini's turn format."""
+    return [
+        {"role": m["role"], "parts": [{"text": m["text"]}]}
+        for m in messages
+    ]
+
+
+def generate_response(session_id: str, message: str) -> str:
     """
-    Turn a user message into an assistant reply.
-
-    Thin today (a straight pass-through to Gemini). In later milestones this
-    is where history and prompt construction will be assembled before calling
-    the model.
+    Turn a user message into a reply, using and updating this session's history.
     """
-    return gemini_service.generate_reply(message)
+    # 1. Past turns for this session (empty list if it's a brand-new chat).
+    history = memory.get_history(session_id)
+
+    # 2. Full conversation = history + the new user message. We keep only the
+    #    last MAX_HISTORY_MESSAGES turns so we never overflow the context window.
+    messages = history + [{"role": "user", "text": message}]
+    messages = messages[-MAX_HISTORY_MESSAGES:]
+
+    # 3. Ask Gemini using the WHOLE conversation, not just this one line.
+    #    (If this raises GeminiError we save nothing, so a failed request never
+    #     corrupts the history with a half-turn.)
+    reply = gemini_service.generate_reply(_to_gemini_contents(messages))
+
+    # 4. Persist this turn (user + assistant) for next time.
+    memory.add_message(session_id, "user", message)
+    memory.add_message(session_id, "model", reply)
+
+    return reply

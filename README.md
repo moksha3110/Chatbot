@@ -141,6 +141,7 @@ Copy `backend/.env.example` to `backend/.env` and fill in values.
 - ✅ **Milestone 3** — Gemini integration via a dedicated `gemini_service.py` module
 - ✅ **Milestone 4** — React + Vite chat UI (indigo + gold theme) connected over CORS
 - ✅ **Milestone 5** — Layered backend: `core` (config), `models`, `services` (gemini + conversation engine), `api` (routes)
+- ✅ **Milestone 6** — Multi-turn conversation memory via session IDs and per-session history (in-memory; a "New Chat" button starts a fresh session)
 
 ## Roadmap
 

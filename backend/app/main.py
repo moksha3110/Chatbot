@@ -17,7 +17,7 @@ from app.api.routes import router
 app = FastAPI(
     title="Internship Chatbot API",
     description="Backend for a milestone-by-milestone AI chatbot, powered by Google Gemini.",
-    version="0.5.0",
+    version="0.6.0",
 )
 
 # CORS: allow our React dev origin(s) to call this API from the browser.

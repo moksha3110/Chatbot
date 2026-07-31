@@ -22,6 +22,10 @@ export default function App() {
   const [input, setInput] = useState("");
   // loading = true while we wait for the backend to answer.
   const [loading, setLoading] = useState(false);
+  // sessionId ties all our messages into ONE conversation on the backend so it
+  // can remember context. We generate it once (lazy initializer) when the app
+  // loads; "New Chat" replaces it with a fresh id to start a clean conversation.
+  const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
 
   // A ref to the bottom of the message list so we can auto-scroll to it.
   const bottomRef = useRef(null);
@@ -43,11 +47,12 @@ export default function App() {
     setLoading(true);
 
     try {
-      // 2. POST the message to FastAPI's /chat endpoint.
+      // 2. POST the message AND the session id, so the backend knows which
+      //    conversation this belongs to and can include its history.
       const res = await fetch(`${API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed }),
+        body: JSON.stringify({ message: trimmed, session_id: sessionId }),
       });
 
       if (!res.ok) {
@@ -83,6 +88,13 @@ export default function App() {
     sendMessage(input);
   }
 
+  // Start a fresh conversation: clear the screen AND get a new session id, so
+  // the backend treats the next message as a brand-new chat with no memory.
+  function startNewChat() {
+    setMessages([]);
+    setSessionId(crypto.randomUUID());
+  }
+
   const isEmpty = messages.length === 0;
 
   return (
@@ -98,6 +110,14 @@ export default function App() {
               Powered by Google Gemini
             </div>
           </div>
+          {/* New Chat resets the conversation (and its memory) */}
+          <button
+            className="new-chat-btn"
+            onClick={startNewChat}
+            disabled={loading || messages.length === 0}
+          >
+            New Chat
+          </button>
         </header>
 
         {/* Message list */}

@@ -29,16 +29,23 @@ if not settings.GEMINI_API_KEY:
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-def generate_reply(message: str) -> str:
+def generate_reply(contents) -> str:
     """
-    Send a single message to Gemini and return the model's text reply.
+    Send `contents` to Gemini and return the model's text reply.
+
+    `contents` may be:
+      - a plain string (a single message), or
+      - a list of turns in Gemini's format, e.g.
+          [{"role": "user",  "parts": [{"text": "hi"}]},
+           {"role": "model", "parts": [{"text": "hello"}]}, ...]
+    Passing the whole list is how we give the model conversation history.
 
     Raises GeminiError on any API/network failure or an empty response.
     """
     try:
         response = client.models.generate_content(
             model=settings.GEMINI_MODEL,
-            contents=message,
+            contents=contents,
         )
     except Exception as e:
         raise GeminiError(f"Gemini request failed: {e}") from e

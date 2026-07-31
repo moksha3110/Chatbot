@@ -53,7 +53,7 @@ internship-chatbot/
 ├── frontend/             # React + Vite chat UI
 │   ├── src/
 │   │   ├── App.jsx           # Chat logic + layout
-│   │   ├── App.css           # Chat styling (indigo + gold theme)
+│   │   ├── App.css           # Chat styling (teal + gold theme)
 │   │   ├── index.css         # Global theme / palette variables
 │   │   └── components/
 │   │       ├── MessageBubble.jsx
@@ -139,7 +139,7 @@ Copy `backend/.env.example` to `backend/.env` and fill in values.
 - ✅ **Milestone 1** — Project foundation (structure, venv, gitignore, README, Git/GitHub)
 - ✅ **Milestone 2** — Typed FastAPI backend: `GET /` health check, `POST /chat` with Pydantic models
 - ✅ **Milestone 3** — Gemini integration via a dedicated `gemini_service.py` module
-- ✅ **Milestone 4** — React + Vite chat UI (indigo + gold theme) connected over CORS
+- ✅ **Milestone 4** — React + Vite chat UI (teal + gold theme) connected over CORS
 - ✅ **Milestone 5** — Layered backend: `core` (config), `models`, `services` (gemini + conversation engine), `api` (routes)
 - ✅ **Milestone 6** — Multi-turn conversation memory via session IDs and per-session history (in-memory; a "New Chat" button starts a fresh session)
 - ✅ **Milestone 7** — Prompt builder: one module assembles system instruction + history + message (gives the bot a defined persona and rules)

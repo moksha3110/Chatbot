@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Chat interface styling (dark indigo + gold)
+   Chat interface styling (deep teal + gold)
    ========================================================================== */
 
 .app {
@@ -32,7 +32,7 @@
   gap: 14px;
   padding: 18px 22px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(99, 102, 241, 0.12), transparent);
+  background: linear-gradient(180deg, rgba(20, 160, 147, 0.12), transparent);
 }
 
 .brand-mark {
@@ -43,9 +43,9 @@
   place-items: center;
   border-radius: 12px;
   font-size: 20px;
-  color: var(--navy-900);
+  color: var(--teal-950);
   background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
-  box-shadow: 0 6px 18px -6px rgba(217, 164, 65, 0.6);
+  box-shadow: 0 6px 18px -6px rgba(201, 154, 63, 0.6);
 }
 
 /* Pushes the New Chat button to the far right of the header */
@@ -59,14 +59,14 @@
   font-size: 13.5px;
   font-weight: 600;
   color: var(--gold-300);
-  background: rgba(236, 192, 105, 0.08);
+  background: rgba(224, 190, 102, 0.08);
   border: 1px solid var(--border-gold);
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.2s;
 }
 .new-chat-btn:hover:not(:disabled) {
-  background: rgba(236, 192, 105, 0.18);
+  background: rgba(224, 190, 102, 0.18);
   transform: translateY(-1px);
 }
 .new-chat-btn:disabled {
@@ -139,12 +139,12 @@
   font-weight: 700;
 }
 .msg.assistant .avatar {
-  color: var(--navy-900);
+  color: var(--teal-950);
   background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
 }
 .msg.user .avatar {
   color: #fff;
-  background: linear-gradient(135deg, var(--indigo-400), var(--indigo-600));
+  background: linear-gradient(135deg, var(--aqua-400), var(--aqua-600));
 }
 
 .bubble {
@@ -156,12 +156,12 @@
   word-wrap: break-word;
 }
 .msg.user .bubble {
-  background: linear-gradient(135deg, var(--indigo-500), var(--indigo-600));
+  background: linear-gradient(135deg, var(--aqua-500), var(--aqua-600));
   color: #fff;
   border-top-right-radius: 4px;
 }
 .msg.assistant .bubble {
-  background: rgba(11, 16, 40, 0.6);
+  background: rgba(4, 32, 30, 0.6);
   border: 1px solid var(--border);
   border-left: 2px solid var(--gold-500);
   border-top-left-radius: 4px;
@@ -203,7 +203,7 @@
   padding: 9px 14px;
   font-size: 13.5px;
   color: var(--text);
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(20, 160, 147, 0.1);
   border: 1px solid var(--border);
   border-radius: 999px;
   cursor: pointer;
@@ -211,7 +211,7 @@
 }
 .chip:hover {
   border-color: var(--border-gold);
-  background: rgba(236, 192, 105, 0.12);
+  background: rgba(224, 190, 102, 0.12);
 }
 
 /* ---- Typing indicator ---- */
@@ -236,14 +236,14 @@
   gap: 10px;
   padding: 16px 18px;
   border-top: 1px solid var(--border);
-  background: linear-gradient(0deg, rgba(99, 102, 241, 0.08), transparent);
+  background: linear-gradient(0deg, rgba(20, 160, 147, 0.08), transparent);
 }
 .composer input {
   flex: 1;
   padding: 13px 16px;
   font-size: 15px;
   color: var(--text);
-  background: rgba(7, 10, 28, 0.6);
+  background: rgba(4, 32, 30, 0.55);
   border: 1px solid var(--border);
   border-radius: 12px;
   outline: none;
@@ -254,7 +254,7 @@
 }
 .composer input:focus {
   border-color: var(--border-gold);
-  box-shadow: 0 0 0 3px rgba(236, 192, 105, 0.15);
+  box-shadow: 0 0 0 3px rgba(224, 190, 102, 0.15);
 }
 .send-btn {
   flex-shrink: 0;
@@ -265,9 +265,9 @@
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  color: var(--navy-900);
+  color: var(--teal-950);
   background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
-  box-shadow: 0 6px 18px -6px rgba(217, 164, 65, 0.6);
+  box-shadow: 0 6px 18px -6px rgba(201, 154, 63, 0.6);
   transition: transform 0.15s, opacity 0.2s;
 }
 .send-btn:hover:not(:disabled) {

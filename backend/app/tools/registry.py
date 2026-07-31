@@ -14,6 +14,7 @@ from google.genai import types
 
 from app.tools.base import Tool
 from app.tools.time_tool import time_tool
+from app.tools.weather_tool import weather_tool
 
 
 class ToolManager:
@@ -55,6 +56,6 @@ class ToolManager:
             return f"Error while running tool '{name}': {e}"
 
 
-# The app-wide tool manager. Register tools here — this is the ONLY line that
-# changes when we add a new tool (e.g. weather in Milestone 9).
-tool_manager = ToolManager([time_tool])
+# The app-wide tool manager. Register tools here — adding a tool is a one-line
+# change (that's the payoff of the generic Tool interface).
+tool_manager = ToolManager([time_tool, weather_tool])

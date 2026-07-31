@@ -27,7 +27,12 @@ if not settings.GEMINI_API_KEY:
     )
 
 # Create the Gemini client once, at import time, and reuse it for every request.
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+# A request timeout means a slow or stuck Gemini call fails cleanly (raising an
+# error we turn into a 502) instead of hanging the request forever.
+client = genai.Client(
+    api_key=settings.GEMINI_API_KEY,
+    http_options=types.HttpOptions(timeout=30_000),  # milliseconds
+)
 
 
 # Safety cap: how many times the model may call a tool within one request.

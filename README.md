@@ -144,6 +144,7 @@ Copy `backend/.env.example` to `backend/.env` and fill in values.
 - ✅ **Milestone 6** — Multi-turn conversation memory via session IDs and per-session history (in-memory; a "New Chat" button starts a fresh session)
 - ✅ **Milestone 7** — Prompt builder: one module assembles system instruction + history + message (gives the bot a defined persona and rules)
 - ✅ **Milestone 8** — Tool Manager foundation: generic tool interface + manual Gemini function calling, with one tool (`get_current_time`)
+- ✅ **Milestone 9** — First real-time tool: `get_weather` (live data via the keyless Open-Meteo API); the model extracts the city argument itself
 
 ## Roadmap
 

@@ -1,24 +1,28 @@
 """
 FastAPI backend for the internship chatbot.
 
-Milestone 2: a basic, well-typed backend.
+Milestone 3: real AI replies.
   - GET  /       -> health check (is the server alive?)
-  - POST /chat   -> echoes the user's message back (no AI yet)
+  - POST /chat   -> sends the message to Gemini and returns its reply
 
-Both endpoints use Pydantic models so that FastAPI can validate the JSON
-coming IN and guarantee the shape of the JSON going OUT.
+main.py owns the HTTP layer only. The actual Gemini call lives in
+gemini_service.py, so this file stays focused on routing and validation.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
+
+# Import the AI layer. generate_reply() does the Gemini call;
+# GeminiError is the single error type we need to handle here.
+from gemini_service import generate_reply, GeminiError
 
 # The FastAPI "app" object is the heart of the backend.
 # Everything (routes, docs, middleware) attaches to it.
 # The title/description/version show up in the auto-generated docs at /docs.
 app = FastAPI(
     title="Internship Chatbot API",
-    description="Backend for a milestone-by-milestone AI chatbot. Currently echoes messages.",
-    version="0.2.0",
+    description="Backend for a milestone-by-milestone AI chatbot, powered by Google Gemini.",
+    version="0.3.0",
 )
 
 
@@ -59,10 +63,16 @@ def home():
 @app.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest):
     """
-    Receive a user message and echo it back.
+    Receive a user message, ask Gemini for a reply, and return it.
 
-    This echo is a deliberate placeholder. In Milestone 3 we will replace
-    the single line below with a real call to the Gemini API.
+    If the Gemini call fails (bad key, quota, network...), we catch the
+    GeminiError and return HTTP 502 with a clear message instead of letting
+    the server crash with a 500.
     """
-    reply = f"You said: {request.message}"
+    try:
+        reply = generate_reply(request.message)
+    except GeminiError as e:
+        # 502 Bad Gateway = "an upstream service (Gemini) failed."
+        raise HTTPException(status_code=502, detail=str(e))
+
     return ChatResponse(response=reply)

@@ -146,6 +146,7 @@ Copy `backend/.env.example` to `backend/.env` and fill in values.
 - ✅ **Milestone 8** — Tool Manager foundation: generic tool interface + manual Gemini function calling, with one tool (`get_current_time`)
 - ✅ **Milestone 9** — First real-time tool: `get_weather` (live data via the keyless Open-Meteo API); the model extracts the city argument itself
 - ✅ **Milestone 10** — RAG: upload a PDF (`POST /documents`) → text extracted, chunked, embedded (Gemini), stored in an in-memory vector store; `/chat` retrieves relevant chunks to ground answers
+- ✅ **Milestone 11** — Persistent storage: conversation history saved in SQLite (survives restarts); only `memory.py` changed thanks to the layered design
 
 ## Roadmap
 

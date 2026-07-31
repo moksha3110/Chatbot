@@ -21,6 +21,10 @@ class Settings:
     GEMINI_API_KEY: str | None = os.getenv("GEMINI_API_KEY")
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 
+    # --- Database ---
+    # SQLite file (relative to the backend/ folder). Override with DB_PATH.
+    DB_PATH: str = os.getenv("DB_PATH", "chatbot.db")
+
     # --- CORS: which browser origins may call this API ---
     CORS_ORIGINS: list[str] = [
         "http://localhost:5173",

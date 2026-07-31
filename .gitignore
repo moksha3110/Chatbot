@@ -9,6 +9,10 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 
+# Databases (local data — don't commit)
+*.db
+*.sqlite3
+
 # Environment / secrets
 .env
 *.env

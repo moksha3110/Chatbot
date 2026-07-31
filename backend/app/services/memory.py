@@ -1,40 +1,40 @@
 """
-Conversation memory — a simple in-memory store.
+Conversation memory — now backed by the SQLite database (Milestone 11).
 
-This holds the history of every conversation, keyed by session_id:
+The PUBLIC INTERFACE is identical to the old in-memory version
+(get_history / add_message / reset), so nothing else in the app changed when we
+switched from a RAM dict to a real database. That's the payoff of keeping all
+history access behind these three functions.
 
-    {
-      "abc-123": [
-        {"role": "user",  "text": "My name is Moksha."},
-        {"role": "model", "text": "Nice to meet you, Moksha!"},
-      ],
-      "def-456": [ ... ],
-    }
-
-IMPORTANT — this is TEMPORARY memory. It lives in the server's RAM, so:
-  - it is lost when the server restarts, and
-  - it is not shared if you run multiple server processes.
-That is fine for development. In Milestone 11 we swap this for a database so
-conversations survive restarts (PERSISTENT memory). Because all history access
-goes through these functions, that swap will only touch this one file.
+Difference from before: conversations now PERSIST. Restart the server and the
+history is still there, because it lives in a file on disk, not in RAM.
 """
 
-# The store itself: a dict mapping session_id -> list of messages.
-# "model" is Gemini's name for the assistant role.
-_conversations: dict[str, list[dict]] = {}
+from app.core.db import get_connection
 
 
 def get_history(session_id: str) -> list[dict]:
-    """Return the list of past messages for a session (empty if new)."""
-    return _conversations.get(session_id, [])
+    """Return the list of past messages for a session, oldest first."""
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT role, text FROM messages WHERE session_id = ? ORDER BY id",
+            (session_id,),
+        ).fetchall()
+    return [{"role": row["role"], "text": row["text"]} for row in rows]
 
 
 def add_message(session_id: str, role: str, text: str) -> None:
-    """Append one message (role = "user" or "model") to a session's history."""
-    # setdefault creates an empty list the first time we see this session.
-    _conversations.setdefault(session_id, []).append({"role": role, "text": text})
+    """Append one message (role = 'user' or 'model') to a session's history."""
+    with get_connection() as conn:
+        conn.execute(
+            "INSERT INTO messages (session_id, role, text) VALUES (?, ?, ?)",
+            (session_id, role, text),
+        )
+        conn.commit()
 
 
 def reset(session_id: str) -> None:
-    """Forget a single conversation (used when the user starts a New Chat)."""
-    _conversations.pop(session_id, None)
+    """Delete a single conversation's history from the database."""
+    with get_connection() as conn:
+        conn.execute("DELETE FROM messages WHERE session_id = ?", (session_id,))
+        conn.commit()

@@ -12,12 +12,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.core.db import init_db
 from app.api.routes import router
+
+# Create database tables (if missing) before the app starts serving requests.
+init_db()
 
 app = FastAPI(
     title="Internship Chatbot API",
     description="Backend for a milestone-by-milestone AI chatbot, powered by Google Gemini.",
-    version="0.10.0",
+    version="0.11.0",
 )
 
 # CORS: allow our React dev origin(s) to call this API from the browser.

@@ -1,9 +1,16 @@
-# Internship Chatbot
+# Internship Chatbot — AURUM AI
 
 A production-style AI chatbot built milestone-by-milestone as an internship project.
 The goal is not just a working bot, but a **clean, modular, well-understood** architecture.
 
-> ⚠️ Work in progress — being built one milestone at a time.
+## Screenshots
+
+| Welcome screen | In conversation |
+|:---:|:---:|
+| ![Welcome screen](docs/screenshots/welcome.png) | ![Chat conversation](docs/screenshots/chat.png) |
+
+*A React + Vite frontend (teal + gold theme) talking to a FastAPI + Gemini backend
+with conversation memory, tools (weather, calculator, Wikipedia), and PDF/RAG.*
 
 ## Target architecture
 

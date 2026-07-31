@@ -48,14 +48,34 @@ class BuiltPrompt:
     contents: list[dict]
 
 
-def build(history: list[dict], user_message: str) -> BuiltPrompt:
+def build(
+    history: list[dict],
+    user_message: str,
+    context: str | None = None,
+) -> BuiltPrompt:
     """
     Assemble the full prompt from the session's history and the new message.
 
     `history` is a list of {"role", "text"} dicts (from the memory store).
+    `context` (optional) is text retrieved from the user's documents (RAG). When
+    present, we add it to the system instruction and tell the model to answer
+    FROM it and to say when the answer isn't there — this is what grounds the
+    model in real sources and reduces hallucination.
+
     Returns a BuiltPrompt with the system instruction and the `contents` list
     in Gemini's turn format.
     """
+    system_instruction = SYSTEM_INSTRUCTION
+    if context:
+        system_instruction += (
+            "\n\n--- REFERENCE CONTEXT (from the user's uploaded documents) ---\n"
+            f"{context}\n"
+            "--- END CONTEXT ---\n"
+            "When the answer is in the context above, use it and rely on it. "
+            "If the context does not contain the answer, say so plainly instead "
+            "of guessing."
+        )
+
     # history + the new user turn, trimmed to the context-window cap.
     messages = history + [{"role": "user", "text": user_message}]
     messages = messages[-MAX_HISTORY_MESSAGES:]
@@ -66,4 +86,4 @@ def build(history: list[dict], user_message: str) -> BuiltPrompt:
         for m in messages
     ]
 
-    return BuiltPrompt(system_instruction=SYSTEM_INSTRUCTION, contents=contents)
+    return BuiltPrompt(system_instruction=system_instruction, contents=contents)

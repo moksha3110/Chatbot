@@ -145,6 +145,7 @@ Copy `backend/.env.example` to `backend/.env` and fill in values.
 - ✅ **Milestone 7** — Prompt builder: one module assembles system instruction + history + message (gives the bot a defined persona and rules)
 - ✅ **Milestone 8** — Tool Manager foundation: generic tool interface + manual Gemini function calling, with one tool (`get_current_time`)
 - ✅ **Milestone 9** — First real-time tool: `get_weather` (live data via the keyless Open-Meteo API); the model extracts the city argument itself
+- ✅ **Milestone 10** — RAG: upload a PDF (`POST /documents`) → text extracted, chunked, embedded (Gemini), stored in an in-memory vector store; `/chat` retrieves relevant chunks to ground answers
 
 ## Roadmap
 

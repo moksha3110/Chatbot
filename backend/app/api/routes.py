@@ -11,11 +11,13 @@ shape the output. They contain NO Gemini logic — that lives in services.
 
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 
 from app.models.chat import ChatRequest, ChatResponse
 from app.services import conversation
 from app.services.gemini_service import GeminiError
+from app.rag import documents, embeddings
+from app.rag.vector_store import vector_store
 
 router = APIRouter()
 
@@ -43,3 +45,37 @@ def chat(request: ChatRequest):
         raise HTTPException(status_code=502, detail=str(e))
 
     return ChatResponse(response=reply, session_id=session_id)
+
+
+@router.post("/documents")
+async def upload_document(file: UploadFile = File(...)):
+    """
+    Upload a PDF to give the bot knowledge (RAG).
+
+    Pipeline: read the PDF -> extract text -> chunk it -> embed each chunk ->
+    store the vectors. After this, /chat automatically retrieves the most
+    relevant chunks for each question.
+    """
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Please upload a .pdf file.")
+
+    data = await file.read()
+    text = documents.extract_text(data)
+    chunks = documents.chunk_text(text)
+    if not chunks:
+        raise HTTPException(
+            status_code=400,
+            detail="No extractable text found in that PDF (is it a scan?).",
+        )
+
+    try:
+        vectors = embeddings.embed_texts(chunks)
+    except GeminiError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+
+    vector_store.add(chunks, vectors)
+    return {
+        "filename": file.filename,
+        "chunks_added": len(chunks),
+        "total_chunks": vector_store.count(),
+    }

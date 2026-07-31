@@ -123,6 +123,20 @@ Open **http://localhost:5173** and start chatting.
 > By default the frontend calls `http://127.0.0.1:8000`; override with
 > `VITE_API_BASE_URL` in `frontend/.env` if needed.
 
+## Run with Docker
+
+Requires Docker Desktop running. From the project root, with `GEMINI_API_KEY`
+set in your shell (or a `.env` file beside `docker-compose.yml`):
+
+```bash
+docker compose up --build
+```
+
+- Frontend: http://localhost:8080  (nginx serves the built app and proxies `/api` → backend)
+- Backend API: http://localhost:8000
+
+Stop with `Ctrl+C`, or `docker compose down` to remove the containers.
+
 ## Environment variables
 
 Copy `backend/.env.example` to `backend/.env` and fill in values.
@@ -149,6 +163,7 @@ Copy `backend/.env.example` to `backend/.env` and fill in values.
 - ✅ **Milestone 11** — Persistent storage: conversation history saved in SQLite (survives restarts); only `memory.py` changed thanks to the layered design
 - ✅ **Milestone 12** — More tools: safe `calculate` (AST, no eval) and keyless `search_wikipedia`. Email/Calendar/Maps follow the same pattern but need credentials + side-effect safeguards
 - ✅ **Milestone 13** — Production hardening: optional API-key auth (`X-API-Key`), per-IP rate limiting, input validation, logging, and a global error handler
+- ✅ **Milestone 14** — Dockerized: backend image, frontend image (built + served by nginx that proxies `/api`), and a `docker-compose.yml` to run the whole stack
 
 ## Roadmap
 

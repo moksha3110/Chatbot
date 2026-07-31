@@ -1,0 +1,28 @@
+# Runs the whole stack with one command: docker compose up --build
+#
+# Two services on a shared private network (compose creates it automatically).
+# The frontend reaches the backend by its service NAME ("backend") — Docker's
+# built-in DNS resolves it. Only the ports we "publish" are reachable from the host.
+
+services:
+  backend:
+    build: ./backend
+    environment:
+      # Injected from your shell / a .env file next to this compose file.
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-flash-latest}
+      - API_KEY=${API_KEY:-}
+      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-30}
+    ports:
+      - "8000:8000"   # host:container — reach the API directly at localhost:8000
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Build the SPA to call "/api", which nginx proxies to the backend.
+        - VITE_API_BASE_URL=/api
+    ports:
+      - "8080:80"     # open http://localhost:8080 in the browser
+    depends_on:
+      - backend

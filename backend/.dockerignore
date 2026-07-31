@@ -1,0 +1,8 @@
+# Never copy these into the image (smaller, safer builds).
+venv/
+__pycache__/
+*.py[cod]
+*.db
+*.sqlite3
+.env
+.env.example

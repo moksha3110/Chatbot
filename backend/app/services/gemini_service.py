@@ -6,6 +6,7 @@ the central `settings` object instead of calling os.getenv() itself.
 """
 
 from google import genai
+from google.genai import types
 
 from app.core.config import settings
 
@@ -29,7 +30,7 @@ if not settings.GEMINI_API_KEY:
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-def generate_reply(contents) -> str:
+def generate_reply(contents, system_instruction: str | None = None) -> str:
     """
     Send `contents` to Gemini and return the model's text reply.
 
@@ -40,12 +41,24 @@ def generate_reply(contents) -> str:
            {"role": "model", "parts": [{"text": "hello"}]}, ...]
     Passing the whole list is how we give the model conversation history.
 
+    `system_instruction` (optional) is a high-priority instruction that sets the
+    model's persona and rules. Gemini takes it separately from `contents`, via
+    the request config — not as another turn in the conversation.
+
     Raises GeminiError on any API/network failure or an empty response.
     """
+    # Only build a config object when we actually have a system instruction.
+    config = (
+        types.GenerateContentConfig(system_instruction=system_instruction)
+        if system_instruction
+        else None
+    )
+
     try:
         response = client.models.generate_content(
             model=settings.GEMINI_MODEL,
             contents=contents,
+            config=config,
         )
     except Exception as e:
         raise GeminiError(f"Gemini request failed: {e}") from e

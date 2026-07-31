@@ -30,40 +30,100 @@ if not settings.GEMINI_API_KEY:
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-def generate_reply(contents, system_instruction: str | None = None) -> str:
+# Safety cap: how many times the model may call a tool within one request.
+# Prevents an infinite "call tool -> call tool -> ..." loop.
+MAX_TOOL_STEPS = 5
+
+
+def _first_function_call(response):
+    """Return the model's function_call from a response, or None if it replied
+    with plain text instead of asking for a tool."""
+    try:
+        parts = response.candidates[0].content.parts
+    except (AttributeError, IndexError, TypeError):
+        return None
+    for part in parts or []:
+        if getattr(part, "function_call", None):
+            return part.function_call
+    return None
+
+
+def generate_reply(
+    contents,
+    system_instruction: str | None = None,
+    tools=None,
+    execute_tool=None,
+) -> str:
     """
-    Send `contents` to Gemini and return the model's text reply.
+    Send `contents` to Gemini and return the model's text reply, running any
+    tools the model asks for along the way (function calling).
 
-    `contents` may be:
-      - a plain string (a single message), or
-      - a list of turns in Gemini's format, e.g.
-          [{"role": "user",  "parts": [{"text": "hi"}]},
-           {"role": "model", "parts": [{"text": "hello"}]}, ...]
-    Passing the whole list is how we give the model conversation history.
+    `contents`            : a string, or a list of turns in Gemini's format.
+    `system_instruction`  : optional persona/rules (sent separately via config).
+    `tools`               : optional tool declarations (from the tool manager).
+    `execute_tool(name,args)` : callback that actually runs a tool by name.
 
-    `system_instruction` (optional) is a high-priority instruction that sets the
-    model's persona and rules. Gemini takes it separately from `contents`, via
-    the request config — not as another turn in the conversation.
+    The function-calling loop:
+      1. Ask the model (giving it the tool menu).
+      2. If it replied with TEXT -> that's the final answer, return it.
+      3. If it asked for a TOOL -> run the tool, append the call + result to the
+         conversation, and loop back to step 1 so the model can use the result.
 
-    Raises GeminiError on any API/network failure or an empty response.
+    Raises GeminiError on API/network failure or an empty response.
     """
-    # Only build a config object when we actually have a system instruction.
-    config = (
-        types.GenerateContentConfig(system_instruction=system_instruction)
-        if system_instruction
-        else None
+    config = types.GenerateContentConfig(
+        system_instruction=system_instruction,
+        tools=tools,
+        # Disable the SDK's built-in auto-execution: we run tools ourselves so
+        # the mechanism is explicit and under our control.
+        automatic_function_calling=(
+            types.AutomaticFunctionCallingConfig(disable=True) if tools else None
+        ),
     )
 
-    try:
-        response = client.models.generate_content(
-            model=settings.GEMINI_MODEL,
-            contents=contents,
-            config=config,
+    # We may append tool turns, so work on our own list.
+    working = list(contents) if isinstance(contents, list) else [contents]
+
+    for _ in range(MAX_TOOL_STEPS):
+        try:
+            response = client.models.generate_content(
+                model=settings.GEMINI_MODEL,
+                contents=working,
+                config=config,
+            )
+        except Exception as e:
+            raise GeminiError(f"Gemini request failed: {e}") from e
+
+        function_call = _first_function_call(response)
+
+        # No tool requested -> the model gave us the final text answer.
+        if function_call is None:
+            if not response.text:
+                raise GeminiError("Gemini returned an empty response.")
+            return response.text
+
+        # The model asked to call a tool.
+        if execute_tool is None:
+            raise GeminiError(
+                f"Model requested tool '{function_call.name}' but no executor "
+                "was provided."
+            )
+        args = dict(function_call.args) if function_call.args else {}
+        result = execute_tool(function_call.name, args)
+
+        # Append (a) the model's tool-call turn and (b) our tool-result turn,
+        # then loop so the model can turn the result into a natural answer.
+        working.append(response.candidates[0].content)
+        working.append(
+            types.Content(
+                role="user",
+                parts=[
+                    types.Part.from_function_response(
+                        name=function_call.name,
+                        response={"result": result},
+                    )
+                ],
+            )
         )
-    except Exception as e:
-        raise GeminiError(f"Gemini request failed: {e}") from e
 
-    if not response.text:
-        raise GeminiError("Gemini returned an empty response.")
-
-    return response.text
+    raise GeminiError("Tool loop did not finish (too many tool calls).")

@@ -15,6 +15,7 @@ The engine just coordinates them.
 from app.services import gemini_service
 from app.services import memory
 from app.services import prompt_builder
+from app.tools.registry import tool_manager
 
 
 def generate_response(session_id: str, message: str) -> str:
@@ -27,11 +28,14 @@ def generate_response(session_id: str, message: str) -> str:
     # 2. Assemble the full prompt (system instruction + history + new message).
     prompt = prompt_builder.build(history, message)
 
-    # 3. Ask Gemini. If this raises GeminiError we save nothing, so a failed
-    #    request never corrupts the history with a half-turn.
+    # 3. Ask Gemini, giving it the available tools. It may call a tool (e.g.
+    #    get_current_time) before producing the final answer. If this raises
+    #    GeminiError we save nothing, so a failed request never corrupts history.
     reply = gemini_service.generate_reply(
         prompt.contents,
         system_instruction=prompt.system_instruction,
+        tools=tool_manager.declarations(),
+        execute_tool=tool_manager.execute,
     )
 
     # 4. Persist this turn (user + assistant) for next time.
